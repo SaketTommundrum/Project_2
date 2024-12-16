@@ -154,8 +154,8 @@ class DbService{
             {
                const query = "INSERT INTO users (first_name,last_name, email,password) VALUES (?,?,?,?);"
                connection.query(query, [firstname,lastname,email,password], (err, result) => {
-                   if(err) reject(new Error(err.message));
-                   else resolve(result.insertId);
+                   if(err) reject(new Error(err.message))
+                   else resolve(result.insertId)
                })
             })
             console.log(insertId)
@@ -179,12 +179,12 @@ class DbService{
             INSERT INTO users_quote 
             (customer_id, address, square_feet, budget, pictures, date) 
             VALUES (?, ?, ?, ?, ?, ?);
-          `;
+          `
           connection.query(query, [id, address, sqft, budget, pictures, date], (err, result) => {
-            if (err) reject(new Error(err.message));
-            else resolve(result.insertId1);
-          });
-        });
+            if (err) reject(new Error(err.message))
+            else resolve(result.insertId1)
+          })
+        })
     
         console.log(insertId1);
         return {
@@ -197,8 +197,8 @@ class DbService{
           date: date
         };
       } catch (error) {
-        console.error(error.message);
-        throw error;
+        console.error(error.message)
+        throw error
       }
    }
 
@@ -209,12 +209,12 @@ class DbService{
             INSERT INTO quotechat 
             (order_id, customer_id, message, sent_by) 
             VALUES (?, ?, ?, ?);
-          `;
+          `
          connection.query(query, [orderid, customerid, message, sent_by], (err, result) => {
-            if (err) reject(new Error(err.message));
-            else resolve(result.insertId2);
-         });
-         });
+            if (err) reject(new Error(err.message))
+            else resolve(result.insertId2)
+         })
+         })
     
          console.log(insertId2);
          return {
@@ -224,160 +224,78 @@ class DbService{
          }
       }
       catch (error) {
-         console.error(error.message);
+         console.error(error.message)
          throw error
       }
    }
 
    async insertBill(orderid, total_amount) {
       try {
-        const insertId3 = await new Promise((resolve, reject) => {
+         const createBillTime = new Date().toISOString()
+         const insertId3 = await new Promise((resolve, reject) => {
          const query = `
             INSERT INTO bills 
-            (order_id, total_amount) 
-            VALUES (?, ?);
-          `;
-         connection.query(query, [orderid,total_amount], (err, result) => {
-            if (err) reject(new Error(err.message));
-            else resolve(result.insertId2);
-         });
-         });
-    
-         console.log(insertId3);
+            (order_id, total_amount, bill_status,create_bill_date) 
+            VALUES (?, ?,?, ?);
+          `
+         connection.query(query, [orderid,total_amount,"Unpaid",createBillTime], (err, result) => {
+            if (err) reject(new Error(err.message))
+            else resolve(result.insertId2)
+         })
+         })
+         console.log(insertId3)
          return {
             order_id:orderid,
-            total_amount: total_amount
+            total_amount: total_amount,
+            bill_status: "Unpaid",
+            create_bill_date: createBillTime
          }
       }
       catch (error) {
-         console.error(error.message);
+         console.error(error.message)
          throw error
       }
    }
                  
    async deleteRowById(id){
-         try{
-            id = parseInt(id, 10)
-            // use await to call an asynchronous function
-            const response = await new Promise((resolve, reject) => 
-               {
-                  const query = "DELETE FROM users WHERE id = ?;"
-                  connection.query(query, [id], (err, result) => {
-                     if(err) reject(new Error(err.message));
-                     else resolve(result.affectedRows);
-                  });
-               }
-            );
-            console.log(response);  // for debugging to see the result of select
-            return response === 1? true: false;
-         }  catch(error){
-            console.log(error);
-         }
+      try{
+         id = parseInt(id, 10)
+         // use await to call an asynchronous function
+         const response = await new Promise((resolve, reject) => 
+            {
+               const query = "DELETE FROM users WHERE id = ?;"
+               connection.query(query, [id], (err, result) => {
+                  if(err) reject(new Error(err.message))
+                  else resolve(result.affectedRows)
+               })
+            }
+         )
+         console.log(response) // for debugging to see the result of select
+         return response === 1? true: false
+      }
+      catch(error){
+         console.log(error)
+      }
    }
 
   async getExisting(email, password) {
    try {
      const response = await new Promise((resolve, reject) => {
-       const query = "SELECT id FROM users WHERE email=? AND password=?";
+       const query = "SELECT id FROM users WHERE email=? AND password=?"
        connection.query(query, [email, password], (err, results) => {
-         if (err) return reject(new Error(err.message));
+         if (err) return reject(new Error(err.message))
          if (results.length === 0) {
-           return reject(new Error("Invalid Credentials!"));
+           return reject(new Error("Invalid Credentials!"))
          }
-         resolve(results[0]); // Return the first result (user object)
-       });
-     });
-     return response;
+         resolve(results[0])
+       })
+     })
+     return response
    } catch (error) {
-     console.error(error.message);
-     throw new Error(error.message); // Let the app route handle this
+     console.error(error.message)
+     throw new Error(error.message) 
    }
- }
-
- async getExistingid(id) {
-   try {
-     const response = await new Promise((resolve, reject) => {
-       const query = "SELECT first_name, email FROM users WHERE id=?";
-       connection.query(query, [id], (err, results) => {
-         if (err) return reject(new Error(err.message));
-         if (results.length === 0) {
-           return reject(new Error("Invalid Credentials!"));
-         }
-         resolve(results[0]); // Return the first result (user object)
-       });
-     });
-     return response;
-   } catch (error) {
-     console.error(error.message);
-     throw new Error(error.message); // Let the app route handle this
    }
- }
-
- async updateStatus(order_id, status){
-   try{
-      const response = await new Promise((resolve, reject) => 
-         {
-            const query = "UPDATE users_quote SET status = ? WHERE order_id = ?"
-            connection.query(query, [status, order_id], (err, result) => {
-               if(err) reject(new Error(err.message));
-               else resolve(result.affectedRows);
-            });
-         });
-      // console.log(response);  // for debugging to see the result of select
-      return response === 1? true: false;
-   }catch(error){
-      console.log(error);
-   } 
- }
-
- async updatePayStatus(order_id, payment_status){
-   try{
-      const response = await new Promise((resolve, reject) => 
-         {
-            const query = "UPDATE users_quote SET payment_status = ? WHERE order_id = ?"
-            connection.query(query, [payment_status, order_id], (err, result) => {
-               if(err) reject(new Error(err.message));
-               else resolve(result.affectedRows);
-            });
-         });
-      // console.log(response); // for debugging to see the result of select
-      return response === 1? true: false;
-   }catch(error){
-      console.log(error);
-   } 
- }
-
- async updateBillStatus(bill_id, bill_status){
-   try{
-      const response = await new Promise((resolve, reject) => 
-         {
-            const query = "UPDATE bills SET bill_status = ? WHERE bill_id = ?"
-            connection.query(query, [bill_status, bill_id], (err, result) => {
-               if(err) reject(new Error(err.message));
-               else resolve(result.affectedRows);
-            });
-         });
-      return response === 1? true: false;
-   }catch(error){
-      console.log(error);
-   } 
- }
-
- async updateCredit(id, credit_card){
-   try{
-      const response = await new Promise((resolve, reject) => 
-         {
-            const query = "UPDATE users SET credit_card = ? WHERE id = ?"
-            connection.query(query, [credit_card, id], (err, result) => {
-               if(err) reject(new Error(err.message));
-               else resolve(result.affectedRows);
-            });
-         });
-      return response === 1? true: false;
-   }catch(error){
-      console.log(error);
-   } 
- }
 
    async queryDatabase(query, params){
       return new Promise((resolve,reject) =>{
@@ -388,61 +306,288 @@ class DbService{
                resolve(results)
             }
          })
-      })
-   }
-
-   async searchByName(name){
-      const [firstName, lastName] = name.split(' ')
-      const query = "SELECT * FROM users where name LIKE ? OR name LIKE ?"
-      return await this.queryDatabase(query, [`%${firstName}%`, `%${lastName}%`])
-   }
-
+      })
+   }
    async searchById(id){
-      id = parseInt(id, 10)
-      const query = "SELECT * FROM users WHERE id =?"
-      return await this.queryDatabase(query, [id])
+   id = parseInt(id, 10)
+   const query = "SELECT * FROM users WHERE id =?"
+   return await this.queryDatabase(query, [id])
+   }
+   
+
+ async getExistingid(id) {
+   try {
+     const response = await new Promise((resolve, reject) => {
+       const query = "SELECT first_name, email FROM users WHERE id=?"
+       connection.query(query, [id], (err, results) => {
+         if (err) return reject(new Error(err.message))
+         if (results.length === 0) {
+           return reject(new Error("Invalid Credentials!"))
+         }
+         resolve(results[0])
+       })
+     })
+     return response
+   } catch (error) {
+     console.error(error.message)
+     throw new Error(error.message) // Let the app route handle this
+   }
    }
 
-   async searchBySalaryRange(min,max){
-      const query = "SELECT * FROM users WHERE salary BETWEEN ? AND ?"
-      return await this.queryDatabase(query,[min,max])
+ async updateStatus(order_id, status){
+   try{
+      const response = await new Promise((resolve, reject) => 
+         {
+            const query = "UPDATE users_quote SET status = ? WHERE order_id = ?"
+            connection.query(query, [status, order_id], (err, result) => {
+               if(err) reject(new Error(err.message))
+               else resolve(result.affectedRows)
+            })
+         })
+      // console.log(response);  // for debugging to see the result of select
+      return response === 1? true: false
+   }catch(error){
+      console.log(error)
+   } 
    }
 
-   async searchByAgeRange(min,max){
-      const query = "SELECT * FROM users WHERE age BETWEEN ? AND ?"
-      return await this.queryDatabase(query,[min,max])
+ async updateBillStatus(bill_id, bill_status){
+   try{
+      const payBillTime = new Date().toISOString()
+      const response = await new Promise((resolve, reject) => 
+         {
+            const query = "UPDATE bills SET bill_status = ?, pay_bill_date = ? WHERE bill_id = ?"
+            connection.query(query, [bill_status,payBillTime, bill_id], (err, result) => {
+               if(err) reject(new Error(err.message))
+               else resolve(result.affectedRows)
+            })
+         })
+      return response === 1? true: false
+   }catch(error){
+      console.log(error)
+   } 
    }
 
-   async searchAfterUserId(id){
-      id = parseInt(id, 10)
-      const query = "SELECT * FROM users WHERE sign_up_time > (SELECT sign_up_time FROM users WHERE id = ?)"
-      return await this.queryDatabase(query,[id])
+ async updatePayStatus(order_id,payment_status){
+   try{
+      const response = await new Promise((resolve, reject) => 
+         {
+            const query = "UPDATE users_quote SET payment_status = ? WHERE order_id = ?"
+            connection.query(query, [payment_status,order_id], (err, result) => {
+               if(err) reject(new Error(err.message))
+               else resolve(result.affectedRows)
+            })
+         })
+      return response === 1? true: false
+   }catch(error){
+      console.log(error)
+   } 
    }
 
-   async searchAfterUserName(name){
-      const query = "SELECT * FROM users WHERE sign_up_time > (SELECT sign_up_time FROM users WHERE name = ?)"
-      return await this.queryDatabase(query,[name])
+ async updateCredit(id, credit_card){
+   try{
+      const response = await new Promise((resolve, reject) => 
+         {
+            const query = `UPDATE users SET credit_card = ? WHERE id = ?`
+            connection.query(query, [credit_card, id], (err, result) => {
+               if(err) reject(new Error(err.message))
+               else resolve(result.affectedRows)
+            });
+         });
+      return response === 1? true: false
+   }catch(error){
+      console.log(error)
+   }
    }
 
-   async searchNeverSignedIn(){
-      const query = "SELECT * FROM users WHERE sign_in_time IS NULL"
-      return await this.queryDatabase(query)
+   // Method to get top clients with the most orders
+   async getTopClients() {
+      try {
+         const query = `
+            SELECT customer_id, COUNT(order_id) AS order_count
+            FROM users_quote
+            WHERE payment_status IS NOT NULL
+            GROUP BY customer_id
+            HAVING COUNT(order_id) = (
+                SELECT MAX(order_count)
+                FROM (
+                    SELECT COUNT(order_id) AS order_count
+                    FROM users_quote
+                    WHERE payment_status IS NOT NULL
+                    GROUP BY customer_id
+                ) AS subquery
+            );
+         `
+
+         const response = await new Promise((resolve, reject) => {
+            connection.query(query, (err, results) => {
+               if (err) reject(new Error(err.message));
+               else resolve(results);
+            });
+         });
+
+         return response;
+      } catch (error) {
+         console.log('Error fetching top clients:', error);
+      }
    }
 
-   async searchSameDayAsUserId(id){
-      id = parseInt(id, 10)
-      const query = "SELECT * FROM users WHERE DATE(sign_up_time) = (SELECT DATE(sign_up_time) FROM users WHERE id =?)"
-      return await this.queryDatabase(query,[id])
+   // Method to get difficult clients with the most orders
+   async getDifficultClients() {
+      try {
+         const query = `
+            SELECT customer_id 
+            FROM users_quote
+            WHERE payment_status IS NULL 
+            GROUP BY customer_id 
+            HAVING COUNT(order_id) >= 3;
+         `
+         const response = await new Promise((resolve, reject) => {
+            connection.query(query, (err, results) => {
+               if (err) reject(new Error(err.message));
+               else resolve(results);
+            });
+         });
+
+         return response;
+      } catch (error) {
+         console.log('Error fetching difficult clients:', error);
+      }
    }
 
-   async searchSameDayAsUserName(name){
-      const query = "SELECT * FROM users WHERE DATE(sign_up_time) = (SELECT DATE(sign_up_time) FROM users WHERE name =?)"
-      return await this.queryDatabase(query,[name])
+   // Method to get this month quotes
+   async getThisMonthQuotes() {
+      try {
+         const query = `
+            SELECT *
+            FROM users_quote
+            WHERE status = 'Accepted'
+            AND DATE_FORMAT(date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m');
+         `
+         const response = await new Promise((resolve, reject) => {
+            connection.query(query, (err, results) => {
+               if (err) reject(new Error(err.message));
+               else resolve(results);
+            });
+         });
+
+         return response;
+      } catch (error) {
+         console.log('Error fetching this month quotes:', error);
+      }
    }
 
-   async searchByRegisteredToday(){
-      const query = "SELECT * FROM users WHERE DATE(sign_up_time) = CURDATE()"
-      return await this.queryDatabase(query)
+   // Method to get propective clients
+   async getProspectiveClients() {
+      try {
+         const query = `
+            SELECT id, first_name, last_name, email
+            FROM users
+            WHERE id NOT IN(
+               SELECT DISTINCT customer_id
+               FROM users_quote);
+         `
+         const response = await new Promise((resolve, reject) => {
+            connection.query(query, (err, results) => {
+               if (err) reject(new Error(err.message));
+               else resolve(results);
+            });
+         });
+
+         return response;
+      } catch (error) {
+         console.log('Error fetching prospective clients:', error);
+      }
+   }
+
+   // Method to get largest driveway
+   async getLargestDriveway() {
+      try {
+         const query = `
+            SELECT *
+            FROM users_quote
+            WHERE status = "Accepted"
+            ORDER BY square_feet DESC;
+         `
+         const response = await new Promise((resolve, reject) => {
+            connection.query(query, (err, results) => {
+               if (err) reject(new Error(err.message));
+               else resolve(results);
+            });
+         });
+
+         return response;
+      } catch (error) {
+         console.log('Error fetching top clients:', error);
+      }
+   }
+
+   // Method to get overdue bills
+   async getOverdueBills() {
+      try {
+         const query = `
+            SELECT *
+            FROM bills
+            WHERE bill_status = "Unpaid"
+            AND DATE_ADD(create_bill_date, INTERVAL 7 day) < NOW();
+         `
+         const response = await new Promise((resolve, reject) => {
+            connection.query(query, (err, results) => {
+               if (err) reject(new Error(err.message));
+               else resolve(results);
+            });
+         });
+
+         return response;
+      } catch (error) {
+         console.log('Error fetching overdue bills', error);
+      }
+   }
+
+   // Method to get bad clients
+   async getBadClients() {
+      try {
+         const query = `
+            SELECT DISTINCT *
+            FROM users_quote uq
+            JOIN bills b ON uq.order_id = b.order_id
+            WHERE b.bill_status = "Unpaid"
+            AND DATE_ADD(b.create_bill_date, INTERVAL 7 day) < NOW();
+         `
+         const response = await new Promise((resolve, reject) => {
+            connection.query(query, (err, results) => {
+               if (err) reject(new Error(err.message));
+               else resolve(results);
+            });
+         });
+
+         return response;
+      } catch (error) {
+         console.log('Error fetching bad clients', error);
+      }
+   }
+
+   // Method to get good clients
+   async getGoodClients() {
+      try {
+         const query = `
+            SELECT u.customer_id,b.bill_id, b.create_bill_date, b.pay_bill_date
+            FROM bills b
+            JOIN users_quote u ON u.order_id = b.order_id
+            WHERE u.payment_status = "Paid"
+            AND TIMESTAMPDIFF(HOUR, b.create_bill_date, b.pay_bill_date) <= 24;
+         `
+         const response = await new Promise((resolve, reject) => {
+            connection.query(query, (err, results) => {
+               if (err) reject(new Error(err.message));
+               else resolve(results);
+            });
+         });
+
+         return response;
+      } catch (error) {
+         console.log('Error fetching Good Clients', error);
+      }
    }
 
 }

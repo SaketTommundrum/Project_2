@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const AdminPage = () => {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState([])
 
   // Fetch all orders
   useEffect(() => {
@@ -50,7 +50,31 @@ const AdminPage = () => {
 
   return (
     <div className="container">
-      <h2>Your Curious Customers</h2>
+      <Link to="/topclients">
+        <button>Big Clients</button>
+      </Link>
+      <Link to="/difficultclients">
+        <button>Difficult Clients</button>
+      </Link>
+      <Link to="/largest-driveway">
+        <button>Largest DriveWay</button>
+      </Link>
+      <Link to="/this-month-quotes">
+        <button>This Month Quotes</button>
+      </Link>
+      <Link to="/prospectiveclients">
+        <button>Prospective Clients</button>
+      </Link>
+      <Link to="/overdue-bills">
+        <button>OverDue Bills</button>
+      </Link>
+      <Link to="/badclients">
+        <button>Bad Clients</button>
+      </Link>
+      <Link to="/goodclients">
+        <button>Good Clients</button>
+      </Link>
+      <h2>Your Customers</h2>
       <table>
         <thead>
           <tr>
@@ -71,10 +95,10 @@ const AdminPage = () => {
             <tr key={order.order_id}>
               <td>{order.order_id}</td>
               <td>{order.customer_id}</td>
-              <td>{order.address}</td>
+              <td>{order.address}</td> 
               <td>{order.square_feet}</td>
               <td>{order.budget}</td>
-              <td>{order.pictures}</td>
+              <td><a href={order.pictures}>{order.order_id} URL</a></td>
               <td>{new Date(order.date).toLocaleString()}</td>
               <td>{order.status}</td>
               <td>

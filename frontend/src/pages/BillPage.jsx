@@ -13,15 +13,13 @@ const BillPage = () => {
       const response1 = await axios.post(`http://localhost:5050/bills/${order_id}`,{
         total_amount
       })
-      if (response1.data) {
+      if (response1.data){
         const response2 = await axios.patch(`http://localhost:5050/updatepaystatus/${order_id}`, {
-          order_id:order_id,
+          order_id: order_id,
           payment_status: "Unpaid"
-        }
-      )
-        console.log("Bill has been successfully created: ", response1.data);
-        navigate(`/admin`); // Redirect to the unique dashboard
-        setTotal_Amount('')
+        });
+        console.log("Bill successfully generated", response1.data, response2.data)
+        navigate('/admin')
       }
     }catch(error){
       console.error('Billing Error: ', error)

@@ -3,7 +3,7 @@ import { useParams, useNavigate} from 'react-router-dom';
 import axios from 'axios';
 
 const PayBill = () => {
-  const { bill_id} = useParams(); // Get the user's ID from the route
+  const { bill_id } = useParams(); // Get the user's ID from the route
   const [orderId, setOrderId] = useState('')
   const [ amount, setAmount] = useState('')
   const [ userId, setUserId] = useState('')
@@ -52,12 +52,17 @@ const PayBill = () => {
               bill_id: bill_id,
               bill_status: "Paid",
             });
-      
-            if (response2.data) {
-              console.log("Bill Update Success:", response2.data);
+            if (response2.data){
+              console.log("Bill Update Success:", response2.data)
               setCardNumber("");
-              navigate(`/dashboard/${userId}`); // Navigate only after successful updates
-            }
+              navigate(`/dashboard/${userId}`);
+              const response3 = await axios.patch(`http://localhost:5050/updatepaystatus/${orderId}`, {
+                order_id: orderId,
+                payment_status: "Paid"
+              });
+              if (response3.data) {
+                console.log("Payment Status Updated Successfully:", response3.data)
+              }}
           }
         } catch (error) {
           console.error("Error in Payment Process: ", error.message);

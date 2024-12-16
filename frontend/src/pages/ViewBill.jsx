@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import axios from 'axios'
 
 const ViewBill = () => {
     const {order_id} = useParams()
@@ -21,17 +22,19 @@ const ViewBill = () => {
 
   const handleActionClick = async (bill_id, selectedAction) => {
     try {
-      const response = await fetch(`http://localhost:5050/updatebill/${order_id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          bill_id: bill_id,
-          bill_status: selectedAction,
-        }),
-        
+      const response2 = await axios.patch(`http://localhost:5050/updatebill/${order_id}`, {
+        bill_id: bill_id,
+        bill_status: selectedAction,
       })
+      if (response2.data){
+        
+        const response3 = await axios.patch(`http://localhost:5050/updatepaystatus/${order_id}`, {
+          order_id: order_id,
+          payment_status: selectedAction
+        });
+        if (response3.data) {
+          console.log("Payment Status Updated Successfully:", response3.data)
+        }}
     } catch (error) {
       console.error('Error updating status:', error)
     }
@@ -47,7 +50,7 @@ const ViewBill = () => {
             <th>Order ID</th>
             <th>Amount Due</th>
             <th>Actions</th>
-            <th>Payment_Status</th>
+            <th>Bill_Status</th>
           </tr>
         </thead>
         <tbody>

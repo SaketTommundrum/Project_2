@@ -113,6 +113,16 @@ app.patch('/update',
     }
 );
 
+app.get('/searchId/:id', (request, response) => { 
+    const {id} = request.params;
+    console.log(id)
+    const db = dbService.getDbServiceInstance()
+    const result =  db.searchById(id)
+    result
+    .then(data => response.json({data: data}))
+    .catch(err => console.log(err))
+})
+
 
 app.get('/getdetails/:orderid', (request, response) => {
 
@@ -180,40 +190,7 @@ app.get('/signin/:id', async (request, response) => {
       console.error(error.message);
       response.status(401).json({ error: error.message });
     }
-  });
-
-// update
-app.patch('/update/:orderid', 
-     (request, response) => {
-          console.log("app: update is called");
-          const {id} = request.params
-          const{name, email, password} = request.body
-          console.log(id)
-          console.log(name)
-          console.log(email)
-          console.log(password)
-          const db = dbService.getDbServiceInstance();
-
-          const result = db.updateNameById(id, name,email,password);
-
-          result.then(data => response.json({success: true}))
-          .catch(err => console.log(err)); 
-
-     }
-)
-
-app.patch('/updatepaystatus/:orderid', 
-     (request, response) => {
-          console.log("app: update for payment is called");
-          const {order_id} = request.params
-          const{payment_status} = request.body
-          const db = dbService.getDbServiceInstance();
-          const result = db.updatePayStatus(order_id, payment_status);
-          result.then(data => response.json({success: true}))
-          .catch(err => console.log(err)); 
-     }
-)
-
+  })
 
 app.patch('/updatebill/:order_id', 
      (request, response) => {
@@ -227,6 +204,20 @@ app.patch('/updatebill/:order_id',
           .catch(err => console.log(err)); 
      }
 );
+
+app.patch('/updatepaystatus/:order_id', 
+     (request, response) => {
+          console.log("app: update for payment status is called");
+          const{order_id, payment_status} = request.body
+          console.log(order_id)
+          console.log(payment_status)
+          const db = dbService.getDbServiceInstance();
+          const result = db.updatePayStatus(order_id, payment_status);
+          result.then(data => response.json({success: true}))
+          .catch(err => console.log(err)); 
+     }
+);
+
 app.patch('/updatecredit/:id', 
      (request, response) => {
           console.log("app: update for credit card is called");
@@ -237,145 +228,153 @@ app.patch('/updatecredit/:id',
           const db = dbService.getDbServiceInstance();
           const result = db.updateCredit(id, credit_card);
           result.then(data => response.json({success: true}))
-          .catch(err => console.log(err)); 
+          .catch(err => console.log(err))
      }
-);
+)
 
+// Route to fetch top clients
+app.get('/top-clients', async (request, response) => {
+    console.log("Search for top clients is called");
+    const db = dbService.getDbServiceInstance();
+    try {
+      const result = await db.getTopClients(); // This should retrieve data
+      console.log("Top clients result:", result); // Log the data to ensure it's retrieved
+      if (result && result.length > 0) {
+        response.json({ success: true, data: result });
+      } else {
+        response.status(404).json({ success: false, message: 'No top clients found' });
+      }
+    } catch (error) {
+      console.error("Error fetching top clients:", error);
+      response.status(500).json({ success: false, message: 'Error fetching top clients' });
+    }
+  })
 
-
-// delete service
-app.delete('/delete/:id', 
-     (request, response) => {     
-        const {id} = request.params;
-        console.log("delete");
-        console.log(id);
-        const db = dbService.getDbServiceInstance();
-
-        const result = db.deleteRowById(id);
-
-        result.then(data => response.json({success: true}))
-        .catch(err => console.log(err));
-     }
-)   
-
-//search
-app.get('/searchName/:name', (request, response) => { 
-    const {name} = request.params;
-    console.log(name)
+// Route to fetch difficult clients
+app.get('/difficult-clients', async (request, response) => {
+    console.log("Search for difficult clients is called")
     const db = dbService.getDbServiceInstance()
-    let result;
-    if(name === "all")
-       result = db.getAllData()
-    else 
-       result =  db.searchByName(name)
-    result
-    .then(data => response.json({data: data}))
-    .catch(err => console.log(err))
-})
+    try {
+      const result = await db.getDifficultClients()
+      console.log("Difficult clients result:", result)
+      if (result && result.length > 0) {
+        response.json({ success: true, data: result });
+      } else {
+        response.status(404).json({ success: false, message: 'No difficult clients found' });
+      }
+    } catch (error) {
+      console.error("Error fetching difficult clients:", error);
+      response.status(500).json({ success: false, message: 'Error fetching difficult clients' });
+    }
+  })
 
-app.get('/searchId/:id', (request, response) => { 
-    const {id} = request.params;
-    console.log(id)
+// Route to fetch thsi month quotes
+app.get('/this-month-quotes', async (request, response) => {
+    console.log("Search for this month quote is called")
     const db = dbService.getDbServiceInstance()
-    const result =  db.searchById(id)
-    result
-    .then(data => response.json({data: data}))
-    .catch(err => console.log(err))
-})
+    try {
+      const result = await db.getThisMonthQuotes()
+      console.log("This month quotes result:", result)
+      if (result && result.length > 0) {
+        response.json({ success: true, data: result });
+      } else {
+        response.status(404).json({ success: false, message: 'No quotes found for this month found' });
+      }
+    } catch (error) {
+      console.error("Error fetching this month quotes:", error);
+      response.status(500).json({ success: false, message: 'Error fetching thsi month quotes' });
+    }
+  })
 
-app.get('/searchSalary/:min&:max', (request, response) => { 
-    const {min, max} = request.params;
-    console.log(`Minimum salary: ${min} Maximum salary: ${max}`)
+// Route to fetch largest driveway clients
+app.get('/largest-driveway', async (request, response) => {
+    console.log("Search for largest driveway clients is called");
+    const db = dbService.getDbServiceInstance();
+    try {
+      const result = await db.getLargestDriveway(); // This should retrieve data
+      console.log("Largest Driveway clients result:", result); // Log the data to ensure it's retrieved
+      if (result && result.length > 0) {
+        response.json({ success: true, data: result });
+      } else {
+        response.status(404).json({ success: false, message: 'No Largest Driveway clients found' });
+      }
+    } catch (error) {
+      console.error("Error fetching largest driveway clients:", error);
+      response.status(500).json({ success: false, message: 'Error fetching top clients' });
+    }
+  });
+  
+// Route to fetch prospective clients
+app.get('/prospective-clients', async (request, response) => {
+    console.log("Search for prospective clients is called")
     const db = dbService.getDbServiceInstance()
-    const result =  db.searchBySalaryRange(min,max)
-    result
-    .then(data => response.json({data: data}))
-    .catch(err => console.log(err))
-})
+    try {
+      const result = await db.getProspectiveClients()
+      console.log("Prospective clients result:", result)
+      if (result && result.length > 0) {
+        response.json({ success: true, data: result });
+      } else {
+        response.status(404).json({ success: false, message: 'No prospective clients found' });
+      }
+    } catch (error) {
+      console.error("Error fetching prospective clients:", error);
+      response.status(500).json({ success: false, message: 'Error fetching prospective clients' });
+    }
+  })
 
-app.get('/searchAge/:min&:max', (request, response) => { 
-    const {min,max} = request.params;
-    console.log(`Minimum age: ${min} Maximum age: ${max}`)
+// Route to fetch overdue bills
+app.get('/overdue-bills', async (request, response) => {
+    console.log("Search for overdue bills is called")
     const db = dbService.getDbServiceInstance()
-    const result =  db.searchByAgeRange(min,max)
-    result
-    .then(data => response.json({data: data}))
-    .catch(err => console.log(err))
-})
+    try {
+      const result = await db.getOverdueBills()
+      console.log("Overdue Bills result:", result)
+      if (result && result.length > 0) {
+        response.json({ success: true, data: result });
+      } else {
+        response.status(404).json({ success: false, message: 'No ovrdue bills found' });
+      }
+    } catch (error) {
+      console.error("Error fetching overdue bills:", error);
+      response.status(500).json({ success: false, message: 'Error fetching overdue bills' });
+    }
+  })
 
-app.get('/searchAfterUserId/:id', (request, response) => { 
-    const {id} = request.params;
-    console.log(id)
+// Route to fetch bad clients
+app.get('/bad-clients', async (request, response) => {
+    console.log("Search for bad clients is called")
     const db = dbService.getDbServiceInstance()
-    let result;
-    if(id === "all")
-       result = db.getAllData()
-    else 
-       result =  db.searchAfterUserId(id)
-    result
-    .then(data => response.json({data: data}))
-    .catch(err => console.log(err))
-})
+    try {
+      const result = await db.getBadClients()
+      console.log("Bad clients result:", result)
+      if (result && result.length > 0) {
+        response.json({ success: true, data: result });
+      } else {
+        response.status(404).json({ success: false, message: 'No bad clients found' });
+      }
+    } catch (error) {
+      console.error("Error fetching bad clients:", error);
+      response.status(500).json({ success: false, message: 'Error fetching bad clients' });
+    }
+  })
 
-app.get('/searchAfterUserName/:name', (request, response) => { 
-    const {name} = request.params;
-    console.log(name)
+// Route to fetch good clients
+app.get('/good-clients', async (request, response) => {
+    console.log("Search for good clients is called")
     const db = dbService.getDbServiceInstance()
-    let result;
-    if(name === "all")
-       result = db.getAllData()
-    else 
-       result =  db.searchAfterUserName(name)
-    result
-    .then(data => response.json({data: data}))
-    .catch(err => console.log(err))
-})
-
-app.get('/neverSignedIn', (request, response) => { 
-    console.log("Never signed in search called")
-    const db = dbService.getDbServiceInstance()
-    const result =  db.searchNeverSignedIn()
-    result
-    .then(data => response.json({data: data}))
-    .catch(err => console.log(err))
-})
-
-app.get('/searchSameDayAsUserId/:id', (request, response) => { 
-    const {id} = request.params;
-    console.log(id)
-    const db = dbService.getDbServiceInstance()
-    let result;
-    if(id === "all")
-       result = db.getAllData()
-    else 
-       result =  db.searchSameDayAsUserId(id)
-    result
-    .then(data => response.json({data: data}))
-    .catch(err => console.log(err))
-})
-
-app.get('/searchSameDayAsUserName/:name', (request, response) => { 
-    const {name} = request.params;
-    console.log(name)
-    const db = dbService.getDbServiceInstance()
-    let result;
-    if(name === "all")
-       result = db.getAllData()
-    else 
-       result =  db.searchSameDayAsUserName(name)
-    result
-    .then(data => response.json({data: data}))
-    .catch(err => console.log(err))
-})
-
-app.get('/searchToday', (request, response) => { 
-    console.log("Today's search is called")
-    const db = dbService.getDbServiceInstance()
-    const result =  db.searchByRegisteredToday()
-    result
-    .then(data => response.json({data: data}))
-    .catch(err => console.log(err))
-})
+    try {
+      const result = await db.getGoodClients()
+      console.log("Good clients result:", result)
+      if (result && result.length > 0) {
+        response.json({ success: true, data: result });
+      } else {
+        response.status(404).json({ success: false, message: 'No good clients found' });
+      }
+    } catch (error) {
+      console.error("Error fetching good clients:", error);
+      response.status(500).json({ success: false, message: 'Error fetching good clients' });
+    }
+  })
 
 
 // set up the web server listener
